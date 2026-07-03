@@ -23,15 +23,15 @@ class TestPlugin(Gimp.PlugIn):
         return False
 
     def do_create_procedure(self, name):
-        procedure = Gimp.Procedure.new(
+        procedure = Gimp.ImageProcedure.new(
             self,
             name,
             Gimp.PDBProcType.PLUGIN,
             self.run,
             None,
-            None,
         )
 
+        procedure.set_image_types("*")
         procedure.set_sensitivity_mask(Gimp.ProcedureSensitivityMask.ALWAYS)
         procedure.set_menu_label("Test Python Plugin")
         procedure.add_menu_path("<Image>/Filters/Mark/")
@@ -44,7 +44,7 @@ class TestPlugin(Gimp.PlugIn):
 
         return procedure
 
-    def run(self, procedure, config, *_run_data):
+    def run(self, procedure, run_mode, image, drawables, config, run_data):
         try:
             image = Gimp.Image.new(400, 200, Gimp.ImageBaseType.RGB)
             layer = Gimp.Layer.new(
