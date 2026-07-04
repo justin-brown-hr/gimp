@@ -3,6 +3,7 @@
 
 import sys
 from pathlib import Path
+from urllib.parse import unquote, urlparse
 
 import gi
 
@@ -40,7 +41,7 @@ class MontageOverlayPlugin(Gimp.PlugIn):
         )
 
         procedure.set_image_types("*")
-        procedure.set_sensitivity_mask(Gimp.ProcedureSensitivityMask.ALWAYS)
+        procedure.set_sensitivity_mask(Gimp.ProcedureSensitivityMask.NO_IMAGE)
         procedure.set_menu_label("Montage + Overlay")
         procedure.add_menu_path("<Image>/Filters/Mark/")
         procedure.set_documentation(
@@ -54,7 +55,7 @@ class MontageOverlayPlugin(Gimp.PlugIn):
             "input-folder",
             "Input Folder",
             "Folder containing the source images for the montage",
-            Gimp.FileChooserAction.SELECT_FOLDER,
+            Gimp.FileChooserAction.CREATE_FOLDER,
             False,
             None,
             GObject.ParamFlags.READWRITE,
@@ -117,6 +118,16 @@ class MontageOverlayPlugin(Gimp.PlugIn):
         if file_arg is None:
             return None
         path = file_arg.get_path()
+        if not path:
+            uri = file_arg.get_uri()
+            if not uri:
+                return None
+            parsed = urlparse(uri)
+            path = unquote(parsed.path or "")
+            if parsed.netloc:
+                path = f"//{parsed.netloc}{path}"
+            if len(path) >= 3 and path[0] == "/" and path[2] == ":":
+                path = path[1:]
         if not path:
             return None
         return Path(path)

@@ -61,7 +61,7 @@ class TestPlugin(Gimp.PlugIn):
 
             Gimp.context_push()
             try:
-                Gimp.Context.set_foreground(Gegl.Color.new("red"))
+                Gimp.context_set_foreground(Gegl.Color.new("red"))
                 layer.fill(Gimp.FillType.FOREGROUND)
             finally:
                 Gimp.context_pop()
